@@ -1,5 +1,5 @@
 import { getRandomInt, generateRange } from "shared/helpers/math-utils"
-import { compareByFirstName } from "./student-compare"
+import { compareByFirstNameAsc } from "./student-compare"
 
 const nameTokens = ["Alan", "John", "Brandon", "Key", "Branda", "Morris", "Carlos", "Lee"]
 
@@ -14,5 +14,5 @@ export function generateStudent(id: number) {
 export function generateStudents(number: number) {
   return generateRange(number)
     .map((_, id) => generateStudent(id + 1))
-    .sort(compareByFirstName)
+    .sort(compareByFirstNameAsc)
 }

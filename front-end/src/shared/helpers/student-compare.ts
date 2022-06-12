@@ -3,9 +3,16 @@ type StudentObject = {
   first_name: string
   last_name: string
 }
-export function compareByFirstName(a: StudentObject, b: StudentObject): number {
+export function compareByFirstNameAsc(a: StudentObject, b: StudentObject): number {
   if (a.first_name > b.first_name) return 1
   else if (a.first_name < b.first_name) return -1
+
+  return 0
+}
+
+export function compareByFirstNameDesc(a: StudentObject, b: StudentObject): number {
+  if (b.first_name > a.first_name) return 1
+  else if (b.first_name < a.first_name) return -1
 
   return 0
 }

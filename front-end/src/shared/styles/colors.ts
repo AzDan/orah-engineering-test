@@ -13,6 +13,8 @@ export const Colors = {
   blue: {
     /* Primary theme color */
     base: "#343f64",
+    /* Hover over primary theme color */
+    hover: "#0b203a",
     /* Default text color */
     darker: "#3a415d",
   },
