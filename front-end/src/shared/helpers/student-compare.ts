@@ -17,9 +17,16 @@ export function compareByFirstNameDesc(a: StudentObject, b: StudentObject): numb
   return 0
 }
 
-export function compareByLastName(a: StudentObject, b: StudentObject): number {
+export function compareByLastNameAsc(a: StudentObject, b: StudentObject): number {
   if (a.last_name > b.last_name) return 1
   else if (a.last_name < b.last_name) return -1
+
+  return 0
+}
+
+export function compareByLastNameDesc(a: StudentObject, b: StudentObject): number {
+  if (b.last_name > a.last_name) return 1
+  else if (b.last_name < a.last_name) return -1
 
   return 0
 }

@@ -10,11 +10,12 @@ import { Person } from "shared/models/person"
 import { useApi } from "shared/hooks/use-api"
 import { StudentListTile } from "staff-app/components/student-list-tile/student-list-tile.component"
 import { ActiveRollOverlay, ActiveRollAction } from "staff-app/components/active-roll-overlay/active-roll-overlay.component"
-import { compareByFirstNameAsc, compareByFirstNameDesc } from "shared/helpers/student-compare"
+import { compareByFirstNameAsc, compareByFirstNameDesc, compareByLastNameAsc, compareByLastNameDesc } from "shared/helpers/student-compare"
 
 export const HomeBoardPage: React.FC = () => {
   const [isRollMode, setIsRollMode] = useState(false)
   const [sortOrder, setSortOrder] = useState("asc")
+  const [nameSortType, setNameSortType] = useState("first")
   const [getStudents, data, loadState] = useApi<{ students: Person[] }>({ url: "get-homeboard-students" })
   const [studentData, setstudentData] = useState<Person[]>()
 
@@ -31,20 +32,38 @@ export const HomeBoardPage: React.FC = () => {
       var copyData = [...studentData] //Change reference for re-rendering
 
       if (sortOrder == "asc") {
-        const sortedList = copyData.sort(compareByFirstNameAsc)
-        setstudentData(sortedList)
+        if (nameSortType == "first") {
+          const sortedList = copyData.sort(compareByFirstNameAsc)
+          setstudentData(sortedList)
+        } else {
+          const sortedList = copyData.sort(compareByLastNameAsc)
+          setstudentData(sortedList)
+        }
       } else if (sortOrder == "desc") {
-        const sortedList = copyData.sort(compareByFirstNameDesc)
-        setstudentData(sortedList)
+        if (nameSortType == "first") {
+          const sortedList = copyData.sort(compareByFirstNameDesc)
+          setstudentData(sortedList)
+        } else {
+          const sortedList = copyData.sort(compareByLastNameDesc)
+          setstudentData(sortedList)
+        }
       }
     }
-  }, [sortOrder])
+  }, [sortOrder, nameSortType])
 
   const onToolbarAction = (action: ToolbarAction) => {
     if (action === "roll") {
       setIsRollMode(true)
     } else if (action === "sort") {
       sortOrder === "asc" ? setSortOrder("desc") : setSortOrder("asc")
+    }
+  }
+
+  const onSortByNameTypeAction = () => {
+    if (nameSortType === "first") {
+      setNameSortType("last")
+    } else {
+      setNameSortType("first")
     }
   }
 
@@ -57,7 +76,7 @@ export const HomeBoardPage: React.FC = () => {
   return (
     <>
       <S.PageContainer>
-        <Toolbar onItemClick={onToolbarAction} sortOrder={sortOrder} />
+        <Toolbar onItemClick={onToolbarAction} sortOrder={sortOrder} nameSortType={nameSortType} onNameClick={onSortByNameTypeAction} />
 
         {loadState === "loading" && (
           <CenteredContainer>
@@ -88,18 +107,24 @@ type ToolbarAction = "roll" | "sort"
 interface ToolbarProps {
   onItemClick: (action: ToolbarAction, value?: string) => void
   sortOrder: string
+  nameSortType: string
+  onNameClick: () => void
 }
+
 const Toolbar: React.FC<ToolbarProps> = (props) => {
-  const { onItemClick, sortOrder } = props
+  const { onItemClick, sortOrder, nameSortType, onNameClick } = props
   return (
     <S.ToolbarContainer>
       <S.NameContainer>
-        <span>First Name</span>
+        <div>
+          <S.Button onClick={() => onNameClick()}>{nameSortType === "first" ? "First" : "Last"} Name</S.Button>
+        </div>
         <S.ToggleButton onClick={() => onItemClick("sort")} className={props.sortOrder}>
           <FontAwesomeIcon icon={faAngleDown} style={iconStyles.icon} />
         </S.ToggleButton>
       </S.NameContainer>
-      <div>Search</div>
+      {/* <input type={"text"} placeholder={"Search"} /> */}
+      <input type={"text"} placeholder={"Search"} style={inputStyles.inputField} />
       <S.Button onClick={() => onItemClick("roll")}>Start Roll</S.Button>
     </S.ToolbarContainer>
   )
@@ -108,6 +133,12 @@ const Toolbar: React.FC<ToolbarProps> = (props) => {
 const iconStyles = {
   icon: {
     color: "#fff",
+  },
+}
+
+const inputStyles = {
+  inputField: {
+    padding: "6px 10px",
   },
 }
 
