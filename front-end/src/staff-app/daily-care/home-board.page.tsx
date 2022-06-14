@@ -17,14 +17,15 @@ export const HomeBoardPage: React.FC = () => {
   const [sortOrder, setSortOrder] = useState("asc")
   const [nameSortType, setNameSortType] = useState("first")
   const [getStudents, data, loadState] = useApi<{ students: Person[] }>({ url: "get-homeboard-students" })
-  const [studentData, setstudentData] = useState<Person[]>()
+  const [studentData, setStudentData] = useState<Person[]>()
+  const [searchString, setSearchString] = useState<string>('')
 
   useEffect(() => {
     void getStudents()
   }, [getStudents])
 
   useEffect(() => {
-    setstudentData(data?.students)
+    setStudentData(data?.students)
   }, [data])
 
   useEffect(() => {
@@ -34,22 +35,34 @@ export const HomeBoardPage: React.FC = () => {
       if (sortOrder == "asc") {
         if (nameSortType == "first") {
           const sortedList = copyData.sort(compareByFirstNameAsc)
-          setstudentData(sortedList)
+          setStudentData(sortedList)
         } else {
           const sortedList = copyData.sort(compareByLastNameAsc)
-          setstudentData(sortedList)
+          setStudentData(sortedList)
         }
       } else if (sortOrder == "desc") {
         if (nameSortType == "first") {
           const sortedList = copyData.sort(compareByFirstNameDesc)
-          setstudentData(sortedList)
+          setStudentData(sortedList)
         } else {
           const sortedList = copyData.sort(compareByLastNameDesc)
-          setstudentData(sortedList)
+          setStudentData(sortedList)
         }
       }
     }
   }, [sortOrder, nameSortType])
+
+  useEffect(() => {
+    if(searchString !== '' && searchString.length>0) {
+      if(studentData && studentData.length > 0) {
+
+        setStudentData(studentData.filter((student) => student.first_name.concat(" ", student.last_name).match(new RegExp(searchString,'gi'))))
+      }
+    }
+    else {
+      setStudentData(data?.students)
+    }
+  },[searchString])
 
   const onToolbarAction = (action: ToolbarAction) => {
     if (action === "roll") {
@@ -73,10 +86,20 @@ export const HomeBoardPage: React.FC = () => {
     }
   }
 
+  const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchString(event.target.value)
+  }
+
   return (
     <>
       <S.PageContainer>
-        <Toolbar onItemClick={onToolbarAction} sortOrder={sortOrder} nameSortType={nameSortType} onNameClick={onSortByNameTypeAction} />
+        <Toolbar 
+          onItemClick={onToolbarAction} 
+          sortOrder={sortOrder} 
+          nameSortType={nameSortType} 
+          onNameClick={onSortByNameTypeAction} 
+          handleSeach={handleSearch}
+        />
 
         {loadState === "loading" && (
           <CenteredContainer>
@@ -109,10 +132,11 @@ interface ToolbarProps {
   sortOrder: string
   nameSortType: string
   onNameClick: () => void
+  handleSeach: (e: React.ChangeEvent<HTMLInputElement>) => void
 }
 
 const Toolbar: React.FC<ToolbarProps> = (props) => {
-  const { onItemClick, sortOrder, nameSortType, onNameClick } = props
+  const { onItemClick, sortOrder, nameSortType, onNameClick, handleSeach } = props
   return (
     <S.ToolbarContainer>
       <S.NameContainer>
@@ -124,7 +148,12 @@ const Toolbar: React.FC<ToolbarProps> = (props) => {
         </S.ToggleButton>
       </S.NameContainer>
       {/* <input type={"text"} placeholder={"Search"} /> */}
-      <input type={"text"} placeholder={"Search"} style={inputStyles.inputField} />
+      <input 
+        type={"text"} 
+        placeholder={"Search"}
+        onChange={handleSeach} 
+        style={inputStyles.inputField} 
+      />
       <S.Button onClick={() => onItemClick("roll")}>Start Roll</S.Button>
     </S.ToolbarContainer>
   )
