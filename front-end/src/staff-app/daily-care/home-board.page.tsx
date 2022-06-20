@@ -6,7 +6,7 @@ import { faAngleDown } from "@fortawesome/free-solid-svg-icons"
 import { Spacing, BorderRadius, FontWeight } from "shared/styles/styles"
 import { Colors } from "shared/styles/colors"
 import { CenteredContainer } from "shared/components/centered-container/centered-container.component"
-import { Person } from "shared/models/person"
+import { Person, PersonHelper } from "shared/models/person"
 import { useApi } from "shared/hooks/use-api"
 import { StudentListTile } from "staff-app/components/student-list-tile/student-list-tile.component"
 import { ActiveRollOverlay, ActiveRollAction } from "staff-app/components/active-roll-overlay/active-roll-overlay.component"
@@ -18,6 +18,7 @@ export const HomeBoardPage: React.FC = () => {
   const [nameSortType, setNameSortType] = useState("first")
   const [getStudents, data, loadState] = useApi<{ students: Person[] }>({ url: "get-homeboard-students" })
   const [studentData, setStudentData] = useState<Person[]>()
+  const [constStudentData, setConstStudentData] = useState<Person[]>()
   const [searchString, setSearchString] = useState<string>('')
 
   useEffect(() => {
@@ -26,6 +27,7 @@ export const HomeBoardPage: React.FC = () => {
 
   useEffect(() => {
     setStudentData(data?.students)
+    setConstStudentData(data?.students)
   }, [data])
 
   useEffect(() => {
@@ -54,13 +56,10 @@ export const HomeBoardPage: React.FC = () => {
 
   useEffect(() => {
     if(searchString !== '' && searchString.length>0) {
-      if(studentData && studentData.length > 0) {
-
-        setStudentData(studentData.filter((student) => student.first_name.concat(" ", student.last_name).match(new RegExp(searchString,'gi'))))
-      }
+      setStudentData(constStudentData?.filter((student) => PersonHelper.getFullName(student).match(new RegExp(searchString,'gi'))))
     }
     else {
-      setStudentData(data?.students)
+      setStudentData(constStudentData)
     }
   },[searchString])
 
