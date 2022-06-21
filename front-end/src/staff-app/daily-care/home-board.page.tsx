@@ -11,6 +11,7 @@ import { useApi } from "shared/hooks/use-api"
 import { StudentListTile } from "staff-app/components/student-list-tile/student-list-tile.component"
 import { ActiveRollOverlay, ActiveRollAction } from "staff-app/components/active-roll-overlay/active-roll-overlay.component"
 import { compareByFirstNameAsc, compareByFirstNameDesc, compareByLastNameAsc, compareByLastNameDesc } from "shared/helpers/student-compare"
+import { RollCount, RolllStateType } from "shared/models/roll"
 
 export const HomeBoardPage: React.FC = () => {
   const [isRollMode, setIsRollMode] = useState(false)
@@ -19,6 +20,7 @@ export const HomeBoardPage: React.FC = () => {
   const [getStudents, data, loadState] = useApi<{ students: Person[] }>({ url: "get-homeboard-students" })
   const [studentData, setStudentData] = useState<Person[]>()
   const [constStudentData, setConstStudentData] = useState<Person[]>()
+  const [rollCount, setRollCount] = useState<RollCount>({all: 0, present: 0, late: 0, absent: 0})
   const [searchString, setSearchString] = useState<string>('')
 
   useEffect(() => {
@@ -55,6 +57,26 @@ export const HomeBoardPage: React.FC = () => {
   }, [sortOrder, nameSortType])
 
   useEffect(() => {
+    var copyRollCount = {all: 0, present: 0, late: 0, absent: 0}
+    constStudentData?.map((item, index) => {
+      switch(item.roll_state) {
+        case "present": copyRollCount.present++
+        break;
+
+        case "late": copyRollCount.late++
+        break;
+
+        case "absent": copyRollCount.absent++
+        break;
+      }
+    })
+    if(constStudentData != undefined) {
+      copyRollCount.all = constStudentData?.length
+      setRollCount(copyRollCount)
+    }
+  },[constStudentData])
+
+  useEffect(() => {
     if(searchString !== '' && searchString.length>0) {
       setStudentData(constStudentData?.filter((student) => PersonHelper.getFullName(student).match(new RegExp(searchString,'gi'))))
     }
@@ -79,9 +101,50 @@ export const HomeBoardPage: React.FC = () => {
     }
   }
 
-  const onActiveRollAction = (action: ActiveRollAction) => {
+  const onActiveRollAction = (action: ActiveRollAction, value?: RolllStateType | "all") => {
     if (action === "exit") {
       setIsRollMode(false)
+    }
+    if(action === "filter") {
+      switch(value) {
+        case "all": setStudentData(constStudentData)
+        break;
+
+        case "present": setStudentData(constStudentData?.filter((item, index) => {
+          if(item.roll_state === "present")
+            return item
+        }))
+        break;
+
+        case "late": setStudentData(constStudentData?.filter((item, index) => {
+          if(item.roll_state === "late")
+            return item
+        }))
+        break;
+
+        case "absent": setStudentData(constStudentData?.filter((item, index) => {
+          if(item.roll_state === "absent")
+            return item
+        }))
+      }
+    }
+  }
+
+  const updateStudentRollState = (student: Person, newState: RolllStateType) => {
+    if(studentData!=undefined) {
+      var copyData = [...studentData]
+      setStudentData(copyData.map((item, index) => {
+        if(item.id === student.id)
+          return {...item, roll_state: newState}
+        else
+          return item
+      }))
+      setConstStudentData(copyData.map((item, index) => {
+        if(item.id === student.id)
+          return {...item, roll_state: newState}
+        else
+          return item
+      }))
     }
   }
 
@@ -109,7 +172,7 @@ export const HomeBoardPage: React.FC = () => {
         {loadState === "loaded" && studentData && (
           <>
             {studentData?.map((s) => (
-              <StudentListTile key={s.id} isRollMode={isRollMode} student={s} />
+              <StudentListTile key={s.id} isRollMode={isRollMode} student={s} updateStudentRollState={updateStudentRollState}/>
             ))}
           </>
         )}
@@ -120,7 +183,7 @@ export const HomeBoardPage: React.FC = () => {
           </CenteredContainer>
         )}
       </S.PageContainer>
-      <ActiveRollOverlay isActive={isRollMode} onItemClick={onActiveRollAction} />
+      <ActiveRollOverlay isActive={isRollMode} onItemClick={onActiveRollAction} rollcount={rollCount}/>
     </>
   )
 }
