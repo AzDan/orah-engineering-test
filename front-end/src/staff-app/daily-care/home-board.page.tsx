@@ -11,13 +11,14 @@ import { useApi } from "shared/hooks/use-api"
 import { StudentListTile } from "staff-app/components/student-list-tile/student-list-tile.component"
 import { ActiveRollOverlay, ActiveRollAction } from "staff-app/components/active-roll-overlay/active-roll-overlay.component"
 import { compareByFirstNameAsc, compareByFirstNameDesc, compareByLastNameAsc, compareByLastNameDesc } from "shared/helpers/student-compare"
-import { RollCount, RolllStateType } from "shared/models/roll"
+import { RollCount, RollInput, RolllStateType } from "shared/models/roll"
 
 export const HomeBoardPage: React.FC = () => {
   const [isRollMode, setIsRollMode] = useState(false)
   const [sortOrder, setSortOrder] = useState("asc")
   const [nameSortType, setNameSortType] = useState("first")
   const [getStudents, data, loadState] = useApi<{ students: Person[] }>({ url: "get-homeboard-students" })
+  const [saveRoll, rollData, saveRollState] = useApi({url: "save-roll"})
   const [studentData, setStudentData] = useState<Person[]>()
   const [constStudentData, setConstStudentData] = useState<Person[]>()
   const [rollCount, setRollCount] = useState<RollCount>({all: 0, present: 0, late: 0, absent: 0})
@@ -127,6 +128,15 @@ export const HomeBoardPage: React.FC = () => {
             return item
         }))
       }
+    }
+    if(action === "exitsave") {
+      setIsRollMode(false)
+      const studentRollState: RollInput = {student_roll_states: []}
+      constStudentData?.map((item, index) => {
+        var state = {student_id: item.id, roll_state: item.roll_state}
+        studentRollState.student_roll_states.push(state)
+      })
+      saveRoll(studentRollState)
     }
   }
 

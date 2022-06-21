@@ -1,8 +1,12 @@
-import React from "react"
+import React, { useEffect } from "react"
 import styled from "styled-components"
 import { Spacing } from "shared/styles/styles"
+import { get, LocalStorageKey } from "shared/helpers/local-storage"
 
 export const ActivityPage: React.FC = () => {
+  useEffect(() => {
+    console.log(get(LocalStorageKey.rolls))
+  })
   return <S.Container>Activity Page</S.Container>
 }
 
