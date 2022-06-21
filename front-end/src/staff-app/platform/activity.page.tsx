@@ -6,6 +6,7 @@ import { get, LocalStorageKey } from "shared/helpers/local-storage"
 export const ActivityPage: React.FC = () => {
   useEffect(() => {
     console.log(get(LocalStorageKey.rolls))
+    console.log(get(LocalStorageKey.students))
   })
   return <S.Container>Activity Page</S.Container>
 }
