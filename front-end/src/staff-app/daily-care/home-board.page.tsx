@@ -18,11 +18,11 @@ export const HomeBoardPage: React.FC = () => {
   const [sortOrder, setSortOrder] = useState("asc")
   const [nameSortType, setNameSortType] = useState("first")
   const [getStudents, data, loadState] = useApi<{ students: Person[] }>({ url: "get-homeboard-students" })
-  const [saveRoll, rollData, saveRollState] = useApi({url: "save-roll"})
+  const [saveRoll, rollData, saveRollState] = useApi({ url: "save-roll" })
   const [studentData, setStudentData] = useState<Person[]>()
   const [constStudentData, setConstStudentData] = useState<Person[]>()
-  const [rollCount, setRollCount] = useState<RollCount>({all: 0, present: 0, late: 0, absent: 0})
-  const [searchString, setSearchString] = useState<string>('')
+  const [rollCount, setRollCount] = useState<RollCount>({ all: 0, present: 0, late: 0, absent: 0 })
+  const [searchString, setSearchString] = useState<string>("")
 
   useEffect(() => {
     void getStudents()
@@ -58,33 +58,35 @@ export const HomeBoardPage: React.FC = () => {
   }, [sortOrder, nameSortType])
 
   useEffect(() => {
-    var copyRollCount = {all: 0, present: 0, late: 0, absent: 0}
+    var copyRollCount = { all: 0, present: 0, late: 0, absent: 0 }
     constStudentData?.map((item, index) => {
-      switch(item.roll_state) {
-        case "present": copyRollCount.present++
-        break;
+      switch (item.roll_state) {
+        case "present":
+          copyRollCount.present++
+          break
 
-        case "late": copyRollCount.late++
-        break;
+        case "late":
+          copyRollCount.late++
+          break
 
-        case "absent": copyRollCount.absent++
-        break;
+        case "absent":
+          copyRollCount.absent++
+          break
       }
     })
-    if(constStudentData != undefined) {
+    if (constStudentData != undefined) {
       copyRollCount.all = constStudentData?.length
       setRollCount(copyRollCount)
     }
-  },[constStudentData])
+  }, [constStudentData])
 
   useEffect(() => {
-    if(searchString !== '' && searchString.length>0) {
-      setStudentData(constStudentData?.filter((student) => PersonHelper.getFullName(student).match(new RegExp(searchString,'gi'))))
-    }
-    else {
+    if (searchString !== "" && searchString.length > 0) {
+      setStudentData(constStudentData?.filter((student) => PersonHelper.getFullName(student).match(new RegExp(searchString, "gi"))))
+    } else {
       setStudentData(constStudentData)
     }
-  },[searchString])
+  }, [searchString])
 
   const onToolbarAction = (action: ToolbarAction) => {
     if (action === "roll") {
@@ -106,34 +108,41 @@ export const HomeBoardPage: React.FC = () => {
     if (action === "exit") {
       setIsRollMode(false)
     }
-    if(action === "filter") {
-      switch(value) {
-        case "all": setStudentData(constStudentData)
-        break;
+    if (action === "filter") {
+      switch (value) {
+        case "all":
+          setStudentData(constStudentData)
+          break
 
-        case "present": setStudentData(constStudentData?.filter((item, index) => {
-          if(item.roll_state === "present")
-            return item
-        }))
-        break;
+        case "present":
+          setStudentData(
+            constStudentData?.filter((item, index) => {
+              if (item.roll_state === "present") return item
+            })
+          )
+          break
 
-        case "late": setStudentData(constStudentData?.filter((item, index) => {
-          if(item.roll_state === "late")
-            return item
-        }))
-        break;
+        case "late":
+          setStudentData(
+            constStudentData?.filter((item, index) => {
+              if (item.roll_state === "late") return item
+            })
+          )
+          break
 
-        case "absent": setStudentData(constStudentData?.filter((item, index) => {
-          if(item.roll_state === "absent")
-            return item
-        }))
+        case "absent":
+          setStudentData(
+            constStudentData?.filter((item, index) => {
+              if (item.roll_state === "absent") return item
+            })
+          )
       }
     }
-    if(action === "exitsave") {
+    if (action === "exitsave") {
       setIsRollMode(false)
-      const studentRollState: RollInput = {student_roll_states: []}
+      const studentRollState: RollInput = { student_roll_states: [] }
       constStudentData?.map((item, index) => {
-        var state = {student_id: item.id, roll_state: item.roll_state}
+        var state = { student_id: item.id, roll_state: item.roll_state }
         studentRollState.student_roll_states.push(state)
       })
       saveRoll(studentRollState)
@@ -141,20 +150,20 @@ export const HomeBoardPage: React.FC = () => {
   }
 
   const updateStudentRollState = (student: Person, newState: RolllStateType) => {
-    if(studentData!=undefined) {
+    if (studentData != undefined) {
       var copyData = [...studentData]
-      setStudentData(copyData.map((item, index) => {
-        if(item.id === student.id)
-          return {...item, roll_state: newState}
-        else
-          return item
-      }))
-      setConstStudentData(copyData.map((item, index) => {
-        if(item.id === student.id)
-          return {...item, roll_state: newState}
-        else
-          return item
-      }))
+      setStudentData(
+        copyData.map((item, index) => {
+          if (item.id === student.id) return { ...item, roll_state: newState }
+          else return item
+        })
+      )
+      setConstStudentData(
+        copyData.map((item, index) => {
+          if (item.id === student.id) return { ...item, roll_state: newState }
+          else return item
+        })
+      )
     }
   }
 
@@ -165,13 +174,7 @@ export const HomeBoardPage: React.FC = () => {
   return (
     <>
       <S.PageContainer>
-        <Toolbar 
-          onItemClick={onToolbarAction} 
-          sortOrder={sortOrder} 
-          nameSortType={nameSortType} 
-          onNameClick={onSortByNameTypeAction} 
-          handleSeach={handleSearch}
-        />
+        <Toolbar onItemClick={onToolbarAction} sortOrder={sortOrder} nameSortType={nameSortType} onNameClick={onSortByNameTypeAction} handleSeach={handleSearch} />
 
         {loadState === "loading" && (
           <CenteredContainer>
@@ -182,7 +185,7 @@ export const HomeBoardPage: React.FC = () => {
         {loadState === "loaded" && studentData && (
           <>
             {studentData?.map((s) => (
-              <StudentListTile key={s.id} isRollMode={isRollMode} student={s} updateStudentRollState={updateStudentRollState}/>
+              <StudentListTile key={s.id} isRollMode={isRollMode} student={s} updateStudentRollState={updateStudentRollState} />
             ))}
           </>
         )}
@@ -193,7 +196,7 @@ export const HomeBoardPage: React.FC = () => {
           </CenteredContainer>
         )}
       </S.PageContainer>
-      <ActiveRollOverlay isActive={isRollMode} onItemClick={onActiveRollAction} rollcount={rollCount}/>
+      <ActiveRollOverlay isActive={isRollMode} onItemClick={onActiveRollAction} rollcount={rollCount} />
     </>
   )
 }
@@ -220,12 +223,7 @@ const Toolbar: React.FC<ToolbarProps> = (props) => {
         </S.ToggleButton>
       </S.NameContainer>
       {/* <input type={"text"} placeholder={"Search"} /> */}
-      <input 
-        type={"text"} 
-        placeholder={"Search"}
-        onChange={handleSeach} 
-        style={inputStyles.inputField} 
-      />
+      <input type={"text"} placeholder={"Search"} onChange={handleSeach} style={inputStyles.inputField} />
       <S.Button onClick={() => onItemClick("roll")}>Start Roll</S.Button>
     </S.ToolbarContainer>
   )

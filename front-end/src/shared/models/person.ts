@@ -10,4 +10,5 @@ export interface Person {
 
 export const PersonHelper = {
   getFullName: (p: Person) => `${p.first_name} ${p.last_name}`,
+  getRollState: (p: Person) => p.roll_state,
 }
