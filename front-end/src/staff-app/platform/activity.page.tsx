@@ -10,7 +10,7 @@ import { DesktopDatePicker } from "@mui/x-date-pickers/DesktopDatePicker"
 import { Person } from "shared/models/person"
 import { Roll } from "shared/models/roll"
 import { getFormattedDateReversed } from "shared/helpers/date-utils"
-import { AttendanceListTile } from "staff-app/components/attendance-list-tile/attendance-list-tile.component"
+import { AttendanceList } from "staff-app/components/attendance-list/attendance-list.component"
 
 export const ActivityPage: React.FC = () => {
   const [date, setDate] = useState<Date | null>(new Date())
@@ -36,19 +36,24 @@ export const ActivityPage: React.FC = () => {
     var copyData = studentData?.map((e) => {
       return { ...e }
     })
-    copyData?.map((e, i) => {
-      rollData?.map((el, index) => {
-        if (el.completed_at.toString().substring(0, 10) == getFormattedDateReversed(date)) {
-          setHasAttendance(true)
-          el.student_roll_states.map((item) => {
+    var filteredRollData = rollData?.filter((el) => {
+      return el.completed_at.toString().substring(0, 10) == getFormattedDateReversed(date)
+    })
+
+    if (filteredRollData != undefined && filteredRollData.length > 0) {
+      setHasAttendance(true)
+      filteredRollData?.map((el, index) => {
+        el.student_roll_states.map((item) => {
+          copyData?.map((e) => {
             if (item.student_id == e.id) e.roll_state = item.roll_state
           })
-        } else {
-          setHasAttendance(false)
-        }
+        })
       })
-    })
-    if (copyData != undefined) setStudentData(copyData)
+    } else {
+      setHasAttendance(false)
+    }
+
+    if (copyData !== undefined) setStudentData(copyData)
   }
 
   return (
@@ -60,15 +65,7 @@ export const ActivityPage: React.FC = () => {
           </Stack>
         </LocalizationProvider>
       </S.DateContainer>
-      <S.DisplayContainer>
-        {hasAttendance ? (
-          studentData?.map((s) => {
-            return <AttendanceListTile key={s.id} student={s} />
-          })
-        ) : (
-          <div>NO ATTENDANCE FOR THIS DAY</div>
-        )}
-      </S.DisplayContainer>
+      <S.DisplayContainer>{hasAttendance ? <AttendanceList students={studentData} selectedDate={date} /> : <h1>NO ATTENDANCE FOR THIS DAY</h1>}</S.DisplayContainer>
     </S.Container>
   )
 }
@@ -82,9 +79,10 @@ const S = {
   `,
   DateContainer: styled.div`
     width: 200px;
-    margin: 0 auto;
+    margin: 8px auto 0;
   `,
   DisplayContainer: styled.div`
     width: 100%;
+    text-align: center;
   `,
 }
