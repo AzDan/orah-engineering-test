@@ -23,6 +23,8 @@ type CalDays = {
 export const HamburgerMenu: React.FC<Props> = ({ isOpen, toggleIsOpen, data, selDate }) => {
   const [rollData, setRollData] = useState<Roll[]>()
   const [calendarDays, setCalendarDays] = useState<CalDays[]>()
+  const [calKey, setCalKey] = useState<number>(1)
+  const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
 
   useEffect(() => {
     setRollData(get(LocalStorageKey.rolls))
@@ -40,13 +42,15 @@ export const HamburgerMenu: React.FC<Props> = ({ isOpen, toggleIsOpen, data, sel
         calDays.push({ date: completedAtString, status: studState[0].roll_state.substring(0, 1).toUpperCase() })
       }
     })
-    if (calendarDays !== undefined) {
+    if (calendarDays !== undefined && calendarDays.length > 0) {
       var update = calendarDays?.map((item, index) => {
         return { ...item, date: calDays[index].date, status: calDays[index].status }
       })
       setCalendarDays(update)
+      setCalKey(calKey + 1)
     } else {
       setCalendarDays(calDays)
+      setCalKey(calKey + 1)
     }
   }, [rollData, data])
 
@@ -63,12 +67,15 @@ export const HamburgerMenu: React.FC<Props> = ({ isOpen, toggleIsOpen, data, sel
           <div>
             <Student.Name>{data && PersonHelper.getFullName(data)}</Student.Name>
             <Student.ID>ID - {data && data.id}</Student.ID>
-            <Student.RollState>
+            {/* <Student.RollState>
               Roll State - <span className={`${data?.roll_state}`}>{data && data.roll_state.toUpperCase()}</span>
-            </Student.RollState>
+            </Student.RollState> */}
           </div>
         </div>
-        <M.Calendar>
+        <M.Calendar key={calKey}>
+          <M.TimeStamp>
+            {selDate != null && months[selDate?.getMonth()]}, {selDate?.getFullYear()}
+          </M.TimeStamp>
           <Calendar
             month={{
               date: getFormattedDateReversed(selDate),
@@ -118,12 +125,13 @@ const M = {
     padding: 3rem 2rem;
   `,
   Calendar: styled.div`
-    margin-top: 12px;
+    margin-top: 24px;
     & .tablediv {
       & table {
         & td.day-cell {
           height: 12px;
           min-width: unset;
+          border-radius: 4px;
 
           & > div {
             height: auto;
@@ -135,8 +143,16 @@ const M = {
             }
           }
         }
+        & td.empty-cell {
+          border-radius: 4px;
+        }
       }
     }
+  `,
+  TimeStamp: styled.div`
+    font-size: 18px;
+    font-weight: 600;
+    padding-bottom: 18px;
   `,
 }
 

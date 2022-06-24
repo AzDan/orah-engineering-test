@@ -133,24 +133,24 @@ export const AttendanceList: React.FC<Props> = ({ students, selectedDate }) => {
     <>
       <A.Container>
         <A.Item>
-          <RollState.Present>Present</RollState.Present>
+          <RollState.Present>PRESENT</RollState.Present>
           <A.List>{renderPresentState()}</A.List>
-          <A.Count>TOTAL - {rollCounts.present}</A.Count>
+          <A.Count>{rollCounts.present}</A.Count>
         </A.Item>
         <A.Item>
-          <RollState.Late>Late</RollState.Late>
+          <RollState.Late>LATE</RollState.Late>
           <A.List>{renderLateState()}</A.List>
-          <A.Count>TOTAL - {rollCounts.late}</A.Count>
+          <A.Count>{rollCounts.late}</A.Count>
         </A.Item>
         <A.Item>
-          <RollState.Absent>Absent</RollState.Absent>
+          <RollState.Absent>ABSENT</RollState.Absent>
           <A.List>{renderAbsentState()}</A.List>
-          <A.Count>TOTAL - {rollCounts.absent}</A.Count>
+          <A.Count>{rollCounts.absent}</A.Count>
         </A.Item>
         <A.Item>
-          <RollState.Unmark>Unmarked</RollState.Unmark>
+          <RollState.Unmark>UNMARKED</RollState.Unmark>
           <A.List>{renderUnmarkState()}</A.List>
-          <A.Count>TOTAL - {rollCounts.unmark}</A.Count>
+          <A.Count>{rollCounts.unmark}</A.Count>
         </A.Item>
       </A.Container>
       <HamburgerMenu isOpen={isSideBar} toggleIsOpen={setIsSideBar} data={sideBarData} selDate={selectedDate} />
@@ -188,7 +188,8 @@ const A = {
   Count: styled.div`
     position: absolute;
     bottom: 10px;
-    left: calc(50% - 2.1rem);
+    right: 1rem;
+    font-weight: 700;
   `,
 }
 
